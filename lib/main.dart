@@ -33,6 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  bool _isButtonToggled = false;
+  String buttonText = "START";
 
   void _incrementCounter() {
     setState(() {
@@ -69,19 +71,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.red,
                 child: Column(children: <Widget>[
                   AnimatedButton(
-                    color: Colors.blue,
-                    onPressed: () {},
-                    enabled: true,
-                    shadowDegree: ShadowDegree.light,
-                    child: const Text(
-                      'START',
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                      color: Colors.blue,
+                      onPressed: () {},
+                      enabled: true,
+                      shadowDegree: ShadowDegree.light,
+                      onToggle: (toggled) {
+                        _isButtonToggled = toggled;
+                        _isButtonToggled
+                            ? buttonText = "PAUSE"
+                            : buttonText = "START";
+                        setState(() {
+                          buttonText;
+                        });
+                        print(_isButtonToggled);
+                      },
+                      child: Text(
+                        buttonText,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )),
                   const Text(
                     'You have pushed the button this many times:',
                   ),

@@ -14,9 +14,11 @@ class AnimatedButton extends StatefulWidget {
   final ShadowDegree shadowDegree;
   final int duration;
   final BoxShape shape;
+  final void Function(bool) onToggle;
 
   const AnimatedButton(
       {super.key,
+      required this.onToggle,
       required this.onPressed,
       required this.child,
       this.enabled = true,
@@ -36,7 +38,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
   static const Curve _curve = Curves.easeIn;
   static const double _shadowHeight = 4;
   double _position = 4;
-  bool _toggled = false;
+  bool toggled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -98,30 +100,19 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     );
   }
 
-  void _toggle(_) {
-    setState(() {
-      _toggled = !_toggled;
-    });
-
-    if (_toggled) {
-      _pressed;
-    } else {
-      _unPressed;
-    }
-  }
-
   void _pressed() {
-    if (_toggled == false) {
+    if (toggled == false) {
       setState(() {
         _position = 0;
-        _toggled = true;
+        toggled = true;
       });
+      widget.onToggle.call(toggled);
     } else {
       setState(() {
         _position = 4;
-        _toggled = false;
+        toggled = false;
       });
-      widget.onPressed();
+      widget.onToggle.call(toggled);
     }
   }
 
@@ -131,7 +122,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     setState(() {
       _position = 4;
     });
-    widget.onPressed();
+    widget.onPressed;
   }
 }
 
