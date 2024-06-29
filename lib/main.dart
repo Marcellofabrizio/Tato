@@ -33,22 +33,21 @@ class MyHomePage extends StatefulWidget {
 
 String formatDuration(int milliseconds) {
   int totalSeconds = milliseconds ~/ 1000;
-  
+
   int minutes = totalSeconds ~/ 60;
   int seconds = totalSeconds % 60;
-  
+
   String minutesStr = minutes.toString().padLeft(2, '0');
   String secondsStr = seconds.toString().padLeft(2, '0');
-  
+
   return '$minutesStr:$secondsStr';
 }
-
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   bool _isButtonToggled = false;
   String buttonText = "START";
-  int duration = 1500000; 
+  int duration = 1500000;
 
   void _incrementCounter() {
     setState(() {
@@ -86,10 +85,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 //     BoxDecoration(border: Border.all(color: Colors.blueAccent)),
                 color: const Color.fromARGB(50, 255, 255, 255),
                 child: Column(children: <Widget>[
+                  Row(
+                    children: [
+                      Text('Pomodoro'),
+                      Text('Pausa Curta'),
+                      Text('Pausa Longa')
+                    ],
+                  ),
                   Text(
                     formatDuration(duration),
                     style: TextStyle(fontSize: 70.0),
-                    ),
+                  ),
                   AnimatedButton(
                       color: Colors.white,
                       onPressed: () {},
