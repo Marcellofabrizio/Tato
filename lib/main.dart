@@ -31,10 +31,24 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+String formatDuration(int milliseconds) {
+  int totalSeconds = milliseconds ~/ 1000;
+  
+  int minutes = totalSeconds ~/ 60;
+  int seconds = totalSeconds % 60;
+  
+  String minutesStr = minutes.toString().padLeft(2, '0');
+  String secondsStr = seconds.toString().padLeft(2, '0');
+  
+  return '$minutesStr:$secondsStr';
+}
+
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   bool _isButtonToggled = false;
   String buttonText = "START";
+  int duration = 1500000; 
 
   void _incrementCounter() {
     setState(() {
@@ -51,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 186, 73, 73),
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
@@ -60,18 +75,23 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Container(
-        color: Colors.blue,
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Container(
-                color: Colors.red,
+                margin: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(40.0),
+                // decoration:
+                //     BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+                color: const Color.fromARGB(50, 255, 255, 255),
                 child: Column(children: <Widget>[
+                  Text(
+                    formatDuration(duration),
+                    style: TextStyle(fontSize: 70.0),
+                    ),
                   AnimatedButton(
-                      color: Colors.blue,
+                      color: Colors.white,
                       onPressed: () {},
                       enabled: true,
                       shadowDegree: ShadowDegree.light,
@@ -83,23 +103,19 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           buttonText;
                         });
-                        print(_isButtonToggled);
                       },
                       child: Text(
                         buttonText,
                         style: const TextStyle(
                           fontSize: 22,
-                          color: Colors.white,
+                          color: Color.fromARGB(255, 186, 73, 73),
                           fontWeight: FontWeight.w500,
                         ),
                       )),
-                  const Text(
-                    'You have pushed the button this many times:',
-                  ),
-                  Text(
-                    '$_counter',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
+                  // Text(
+                  //   '$_counter',
+                  //   style: Theme.of(context).textTheme.headlineMedium,
+                  // ),
                 ]))
           ],
         ),
