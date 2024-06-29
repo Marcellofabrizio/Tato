@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tato/components/animated_button.dart';
 
 void main() {
   runApp(const MyApp());
@@ -67,10 +68,19 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
                 color: Colors.red,
                 child: Column(children: <Widget>[
-                  FloatingActionButton(
-                    onPressed: _incrementCounter,
-                    tooltip: 'Increment',
-                    child: const Icon(Icons.add),
+                  AnimatedButton(
+                    color: Colors.blue,
+                    onPressed: () {},
+                    enabled: true,
+                    shadowDegree: ShadowDegree.light,
+                    child: const Text(
+                      'START',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                   const Text(
                     'You have pushed the button this many times:',
