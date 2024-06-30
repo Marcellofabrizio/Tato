@@ -85,12 +85,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 //     BoxDecoration(border: Border.all(color: Colors.blueAccent)),
                 color: const Color.fromARGB(50, 255, 255, 255),
                 child: Column(children: <Widget>[
-                  Row(
-                    children: [
-                      Text('Pomodoro'),
-                      Text('Pausa Curta'),
-                      Text('Pausa Longa')
-                    ],
+                  Center(
+                    child: Row(
+                      children: [
+                        Container(
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            color: const Color.fromARGB(50, 0, 255, 0),
+                            child: Text('Pomodoro')),
+                        Container(
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            color: const Color.fromARGB(50, 0, 255, 0),
+                            child: Text('Pausa Curta')),
+                        Container(
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            color: const Color.fromARGB(50, 0, 255, 0),
+                            child: Text('Pausa Longa'))
+                      ],
+                    ),
                   ),
                   Text(
                     formatDuration(duration),
