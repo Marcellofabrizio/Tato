@@ -1,3 +1,8 @@
+import 'dart:developer';
+import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:tato/components/animated_button.dart';
 
@@ -44,16 +49,9 @@ String formatDuration(int milliseconds) {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   bool _isButtonToggled = false;
   String buttonText = "START";
-  int duration = 1500000;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  int duration = 5000;
 
   @override
   Widget build(BuildContext context) {
@@ -87,23 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(children: <Widget>[
                   Center(
                     child: Row(
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.all(5.0),
-                            padding: const EdgeInsets.all(5.0),
-                            color: const Color.fromARGB(50, 0, 255, 0),
-                            child: Text('Pomodoro')),
-                        Container(
-                            margin: const EdgeInsets.all(5.0),
-                            padding: const EdgeInsets.all(5.0),
-                            color: const Color.fromARGB(50, 0, 255, 0),
-                            child: Text('Pausa Curta')),
-                        Container(
-                            margin: const EdgeInsets.all(5.0),
-                            padding: const EdgeInsets.all(5.0),
-                            color: const Color.fromARGB(50, 0, 255, 0),
-                            child: Text('Pausa Longa'))
-                      ],
+                      children: [Container(margin: const EdgeInsets.all(5.0), padding: const EdgeInsets.all(5.0), color: const Color.fromARGB(50, 0, 255, 0), child: Text('Pomodoro')), Container(margin: const EdgeInsets.all(5.0), padding: const EdgeInsets.all(5.0), color: const Color.fromARGB(50, 0, 255, 0), child: Text('Pausa Curta')), Container(margin: const EdgeInsets.all(5.0), padding: const EdgeInsets.all(5.0), color: const Color.fromARGB(50, 0, 255, 0), child: Text('Pausa Longa'))],
                     ),
                   ),
                   Text(
@@ -112,17 +94,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   AnimatedButton(
                       color: Colors.white,
-                      onPressed: () {},
+                      onPressed: () async {},
                       enabled: true,
                       shadowDegree: ShadowDegree.light,
-                      onToggle: (toggled) {
+                      onToggle: (toggled) async {
                         _isButtonToggled = toggled;
-                        _isButtonToggled
-                            ? buttonText = "PAUSE"
-                            : buttonText = "START";
+                        _isButtonToggled ? buttonText = "PAUSE" : buttonText = "START";
                         setState(() {
                           buttonText;
                         });
+                        final ReceivePort receivePort = ReceivePort();
+                        await Isolate.spawn(isolateMain, [receivePort.sendPort, duration]);
+
+                        final sendPort = await receivePort.first as SendPort;
+                        final answerPort = ReceivePort();
+
+                        sendPort.send(answerPort.sendPort);
+
+                        answerPort.listen((message) {
+                          setState(() {
+                            duration = message;
+                          });
+                        });
+                        log("click");
                       },
                       child: Text(
                         buttonText,
@@ -141,5 +135,28 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+void isolateMain(List<dynamic> args) async {
+  final SendPort sendPort = args[0] as SendPort;
+  int duration = args[1] as int;
+
+  final ReceivePort port = ReceivePort();
+  sendPort.send(port.sendPort);
+
+  await for (var message in port) {
+    final SendPort replyPort = message as SendPort;
+
+    while (duration > 0) {
+      duration--;
+      replyPort.send(duration);
+      log(duration.toString());
+      if (duration % 1000 == 0) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+
+    replyPort.send(duration);
   }
 }
