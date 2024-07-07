@@ -52,15 +52,18 @@ String formatDuration(int milliseconds) {
 class _MyHomePageState extends State<MyHomePage> {
   bool _isButtonToggled = false;
   String buttonText = "START";
-  int duration = 5000;
   final GlobalKey<AnimatedButtonState> _buttonKey =
       GlobalKey<AnimatedButtonState>();
 
-  final pomodoroDurations = [1500000, 300000, 900000];
-  final _pomodoroIdx = 0;
-  final _shortBreakIdx = 1; 
-  final _longBreakIdx = 2; 
+  final _pomodoroDurations = [1500000, 300000, 900000];
+  int duration = 1500000;
+  int pomodoroStep = 0;
 
+  late Isolate timerIsolate;
+
+  final _pomodoroIdx = 0;
+  final _shortBreakIdx = 1;
+  final _longBreakIdx = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +123,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       shadowDegree: ShadowDegree.light,
                       onToggle: (toggled) async {
                         updateButtonState(toggled);
-                        print(toggled);
                         if (toggled) {
                           await startTimer();
+                        } else {
+                          log('Terminating Isolate');
+                          timerIsolate.kill();
                         }
                       },
                       child: Text(
@@ -141,8 +146,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> startTimer() async {
+    log('Initiating Isolate');
+
     final ReceivePort receivePort = ReceivePort();
-    await Isolate.spawn(isolateMain, [receivePort.sendPort, duration]);
+    timerIsolate =
+        await Isolate.spawn(isolateMain, [receivePort.sendPort, duration]);
 
     final sendPort = await receivePort.first as SendPort;
     final answerPort = ReceivePort();
@@ -155,7 +163,9 @@ class _MyHomePageState extends State<MyHomePage> {
           duration = message;
         });
       } else {
-        duration = 5000;
+        pomodoroStep++;
+        pomodoroStep = pomodoroStep % 3; // round robin
+        duration = _pomodoroDurations[pomodoroStep];
         _buttonKey.currentState?.untoggleButton();
       }
     });
