@@ -22,7 +22,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(title: 'Just Another Pomodoro Timer'),
     );
   }
 }
@@ -52,24 +53,21 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isButtonToggled = false;
   String buttonText = "START";
   int duration = 5000;
+  final GlobalKey<AnimatedButtonState> _buttonKey =
+      GlobalKey<AnimatedButtonState>();
+
+  final pomodoroDurations = [1500000, 300000, 900000];
+  final _pomodoroIdx = 0;
+  final _shortBreakIdx = 1; 
+  final _longBreakIdx = 2; 
+
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 186, 73, 73),
+      backgroundColor: const Color.fromARGB(255, 186, 73, 73),
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
@@ -85,38 +83,47 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(children: <Widget>[
                   Center(
                     child: Row(
-                      children: [Container(margin: const EdgeInsets.all(5.0), padding: const EdgeInsets.all(5.0), color: const Color.fromARGB(50, 0, 255, 0), child: Text('Pomodoro')), Container(margin: const EdgeInsets.all(5.0), padding: const EdgeInsets.all(5.0), color: const Color.fromARGB(50, 0, 255, 0), child: Text('Pausa Curta')), Container(margin: const EdgeInsets.all(5.0), padding: const EdgeInsets.all(5.0), color: const Color.fromARGB(50, 0, 255, 0), child: Text('Pausa Longa'))],
+                      children: [
+                        Container(
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            color: const Color.fromARGB(255, 186, 73, 73),
+                            child: const Text(
+                              'Pomodoro',
+                            )),
+                        Container(
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            color: const Color.fromARGB(255, 186, 73, 73),
+                            child: const Text(
+                              'Pausa Curta',
+                            )),
+                        Container(
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            color: const Color.fromARGB(255, 186, 73, 73),
+                            child: const Text(
+                              'Pausa Longa',
+                            ))
+                      ],
                     ),
                   ),
                   Text(
                     formatDuration(duration),
-                    style: TextStyle(fontSize: 70.0),
+                    style: const TextStyle(fontSize: 70.0),
                   ),
                   AnimatedButton(
+                      key: _buttonKey,
                       color: Colors.white,
                       onPressed: () async {},
                       enabled: true,
                       shadowDegree: ShadowDegree.light,
                       onToggle: (toggled) async {
-                        _isButtonToggled = toggled;
-                        _isButtonToggled ? buttonText = "PAUSE" : buttonText = "START";
-                        setState(() {
-                          buttonText;
-                        });
-                        final ReceivePort receivePort = ReceivePort();
-                        await Isolate.spawn(isolateMain, [receivePort.sendPort, duration]);
-
-                        final sendPort = await receivePort.first as SendPort;
-                        final answerPort = ReceivePort();
-
-                        sendPort.send(answerPort.sendPort);
-
-                        answerPort.listen((message) {
-                          setState(() {
-                            duration = message;
-                          });
-                        });
-                        log("click");
+                        updateButtonState(toggled);
+                        print(toggled);
+                        if (toggled) {
+                          await startTimer();
+                        }
                       },
                       child: Text(
                         buttonText,
@@ -126,15 +133,41 @@ class _MyHomePageState extends State<MyHomePage> {
                           fontWeight: FontWeight.w500,
                         ),
                       )),
-                  // Text(
-                  //   '$_counter',
-                  //   style: Theme.of(context).textTheme.headlineMedium,
-                  // ),
                 ]))
           ],
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
+  }
+
+  Future<void> startTimer() async {
+    final ReceivePort receivePort = ReceivePort();
+    await Isolate.spawn(isolateMain, [receivePort.sendPort, duration]);
+
+    final sendPort = await receivePort.first as SendPort;
+    final answerPort = ReceivePort();
+
+    sendPort.send(answerPort.sendPort);
+
+    answerPort.listen((message) {
+      if (message != 0) {
+        setState(() {
+          duration = message;
+        });
+      } else {
+        duration = 5000;
+        _buttonKey.currentState?.untoggleButton();
+      }
+    });
+  }
+
+  void updateButtonState(bool toggled) {
+    _isButtonToggled = toggled;
+    _isButtonToggled ? buttonText = "PAUSE" : buttonText = "START";
+
+    setState(() {
+      buttonText;
+    });
   }
 }
 
@@ -158,5 +191,9 @@ void isolateMain(List<dynamic> args) async {
     }
 
     replyPort.send(duration);
+
+    if (duration == 0) {
+      Isolate.exit();
+    }
   }
 }

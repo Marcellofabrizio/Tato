@@ -31,10 +31,10 @@ class AnimatedButton extends StatefulWidget {
       : assert(child != null);
 
   @override
-  _AnimatedButtonState createState() => _AnimatedButtonState();
+  AnimatedButtonState createState() => AnimatedButtonState();
 }
 
-class _AnimatedButtonState extends State<AnimatedButton> {
+class AnimatedButtonState extends State<AnimatedButton> {
   static const Curve _curve = Curves.easeIn;
   static const double _shadowHeight = 4;
   double _position = 4;
@@ -42,25 +42,20 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   @override
   Widget build(BuildContext context) {
-    final double _height = widget.height - _shadowHeight;
+    final double height = widget.height - _shadowHeight;
 
     return GestureDetector(
-      // width here is required for centering the button in parent
-      // onTapDown: widget.enabled ? _pressed : null,
-      // onTapUp: widget.enabled ? _unPressedOnTapUp : null,
       onTap: widget.enabled ? _pressed : null,
       onTapCancel: widget.enabled ? _unPressed : null,
       child: SizedBox(
         width: widget.width,
-        height: _height + _shadowHeight,
+        height: height + _shadowHeight,
         child: Stack(
           children: <Widget>[
-            // background shadow serves as drop shadow
-            // width is necessary for bottom shadow
             Positioned(
               bottom: 0,
               child: Container(
-                height: _height,
+                height: height,
                 width: widget.width,
                 decoration: BoxDecoration(
                     color: widget.enabled
@@ -79,7 +74,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
               duration: Duration(milliseconds: widget.duration),
               bottom: _position,
               child: Container(
-                height: _height,
+                height: height,
                 width: widget.width,
                 decoration: BoxDecoration(
                     color: widget.enabled ? widget.color : Colors.grey,
@@ -102,21 +97,27 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   void _pressed() {
     if (toggled == false) {
-      setState(() {
-        _position = 0;
-        toggled = true;
-      });
-      widget.onToggle.call(toggled);
+      toggleButton();
     } else {
-      setState(() {
-        _position = 4;
-        toggled = false;
-      });
-      widget.onToggle.call(toggled);
+      untoggleButton();
     }
   }
 
-  void _unPressedOnTapUp(_) => _unPressed();
+  void toggleButton() {
+    setState(() {
+      _position = 0;
+      toggled = true;
+    });
+    widget.onToggle.call(toggled);
+  }
+
+  void untoggleButton() {
+    setState(() {
+      _position = 4;
+      toggled = false;
+    });
+    widget.onToggle.call(toggled);
+  }
 
   void _unPressed() {
     setState(() {
