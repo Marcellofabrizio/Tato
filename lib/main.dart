@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:tato/components/animated_button.dart';
 
 void main() {
@@ -52,11 +56,11 @@ String formatDuration(int milliseconds) {
 class _MyHomePageState extends State<MyHomePage> {
   bool _isButtonToggled = false;
   String buttonText = "START";
-  final GlobalKey<AnimatedButtonState> _buttonKey =
+  final GlobalKey<AnimatedButtonState> _mainButtonKey =
       GlobalKey<AnimatedButtonState>();
 
-  final _pomodoroDurations = [1500000, 300000, 900000];
-  int duration = 1500000;
+  final _pomodoroDurations = [15000, 300000, 900000];
+  int duration = 15000;
   int pomodoroStep = 0;
 
   late Isolate timerIsolate;
@@ -78,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Container(
-                margin: const EdgeInsets.all(20.0),
+                margin: const EdgeInsets.all(15.0),
                 padding: const EdgeInsets.all(40.0),
                 // decoration:
                 //     BoxDecoration(border: Border.all(color: Colors.blueAccent)),
@@ -87,27 +91,59 @@ class _MyHomePageState extends State<MyHomePage> {
                   Center(
                     child: Row(
                       children: [
-                        Container(
-                            margin: const EdgeInsets.all(5.0),
-                            padding: const EdgeInsets.all(5.0),
-                            color: const Color.fromARGB(255, 186, 73, 73),
-                            child: const Text(
-                              'Pomodoro',
-                            )),
-                        Container(
-                            margin: const EdgeInsets.all(5.0),
-                            padding: const EdgeInsets.all(5.0),
-                            color: const Color.fromARGB(255, 186, 73, 73),
-                            child: const Text(
-                              'Pausa Curta',
-                            )),
-                        Container(
-                            margin: const EdgeInsets.all(5.0),
-                            padding: const EdgeInsets.all(5.0),
-                            color: const Color.fromARGB(255, 186, 73, 73),
-                            child: const Text(
-                              'Pausa Longa',
-                            ))
+                        Expanded(
+                            child: AnimatedButton(
+                                width: 105,
+                                height: 50,
+                                color: Colors.white,
+                                onPressed: () async {},
+                                enabled: true,
+                                shadowDegree: ShadowDegree.light,
+                                onToggle: (toggled) async {},
+                                child: const Text(
+                                  'POMODORO',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Color.fromARGB(255, 186, 73, 73),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ))),
+                        Expanded(
+                          child: AnimatedButton(
+                              width: 105,
+                              height: 50,
+                              color: Colors.white,
+                              onPressed: () async {},
+                              enabled: true,
+                              shadowDegree: ShadowDegree.light,
+                              onToggle: (toggled) async {},
+                              child: const Text(
+                                'SHORT BREAK',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color.fromARGB(255, 186, 73, 73),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              )),
+                        ),
+                        Expanded(
+                          child: AnimatedButton(
+                              width: 105,
+                              height: 50,
+                              color: Colors.white,
+                              onPressed: () async {},
+                              enabled: true,
+                              shadowDegree: ShadowDegree.light,
+                              onToggle: (toggled) async {},
+                              child: const Text(
+                                'LONG BREAK',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color.fromARGB(255, 186, 73, 73),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              )),
+                        ),
                       ],
                     ),
                   ),
@@ -116,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: const TextStyle(fontSize: 70.0),
                   ),
                   AnimatedButton(
-                      key: _buttonKey,
+                      key: _mainButtonKey,
                       color: Colors.white,
                       onPressed: () async {},
                       enabled: true,
@@ -166,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
         pomodoroStep++;
         pomodoroStep = pomodoroStep % 3; // round robin
         duration = _pomodoroDurations[pomodoroStep];
-        _buttonKey.currentState?.untoggleButton();
+        _mainButtonKey.currentState?.untoggleButton();
       }
     });
   }
