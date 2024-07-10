@@ -93,17 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 shadowDegree: ShadowDegree.light,
                                 onToggle: (toggled) {
                                   if (toggled) {
-                                    stopTimer();
-                                    _shortBreakButtonKey.currentState!
-                                        .untoggleButton();
-                                    _longBreakButtonKey.currentState!
-                                        .untoggleButton();
-                                    duration = _pomodoroDuration;
-                                    pomodoroStep = 0;
-                                    setState(() {
-                                      duration;
-                                      pomodoroStep;
-                                    });
+                                    handlePomodoroStepToggle();
                                   }
                                 },
                                 child: const Text(
@@ -125,17 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               shadowDegree: ShadowDegree.light,
                               onToggle: (toggled) {
                                 if (toggled) {
-                                  stopTimer();
-                                  _pomodoroButtonKey.currentState!
-                                      .untoggleButton();
-                                  _longBreakButtonKey.currentState!
-                                      .untoggleButton();
-                                  duration = _shortBreakDuration;
-                                  pomodoroStep = 1;
-                                  setState(() {
-                                    duration;
-                                    pomodoroStep;
-                                  });
+                                  handleShortBreakButtonToggle();
                                 }
                               },
                               child: const Text(
@@ -158,18 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               shadowDegree: ShadowDegree.light,
                               onToggle: (toggled) {
                                 if (toggled) {
-                                  stopTimer();
-
-                                  _shortBreakButtonKey.currentState!
-                                      .untoggleButton();
-                                  _pomodoroButtonKey.currentState!
-                                      .untoggleButton();
-                                  duration = _longBreakDuration;
-                                  pomodoroStep = 2;
-                                  setState(() {
-                                    duration;
-                                    pomodoroStep;
-                                  });
+                                  handleLongBreakButtonToggle();
                                 }
                               },
                               child: const Text(
@@ -216,6 +185,49 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  void handleLongBreakButtonToggle() {
+    stopTimer();
+    
+    _shortBreakButtonKey.currentState!
+        .untoggleButton();
+    _pomodoroButtonKey.currentState!
+        .untoggleButton();
+    duration = _longBreakDuration;
+    pomodoroStep = 2;
+    setState(() {
+      duration;
+      pomodoroStep;
+    });
+  }
+
+  void handleShortBreakButtonToggle() {
+    stopTimer();
+    _pomodoroButtonKey.currentState!
+        .untoggleButton();
+    _longBreakButtonKey.currentState!
+        .untoggleButton();
+    duration = _shortBreakDuration;
+    pomodoroStep = 1;
+    setState(() {
+      duration;
+      pomodoroStep;
+    });
+  }
+
+  void handlePomodoroStepToggle() {
+    stopTimer();
+    _shortBreakButtonKey.currentState!
+        .untoggleButton();
+    _longBreakButtonKey.currentState!
+        .untoggleButton();
+    duration = _pomodoroDuration;
+    pomodoroStep = 0;
+    setState(() {
+      duration;
+      pomodoroStep;
+    });
   }
 
   void stopTimer() {
