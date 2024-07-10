@@ -100,6 +100,7 @@ class AnimatedButtonState extends State<AnimatedButton> {
       toggleButton();
     } else {
       untoggleButton();
+      widget.onToggle.call(toggled);
     }
   }
 
@@ -116,7 +117,6 @@ class AnimatedButtonState extends State<AnimatedButton> {
       _position = 4;
       toggled = false;
     });
-    widget.onToggle.call(toggled);
   }
 
   void _unPressed() {

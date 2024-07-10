@@ -34,16 +34,31 @@ class _MyHomePageState extends State<MyHomePage> {
   String buttonText = "START";
   final GlobalKey<AnimatedButtonState> _mainButtonKey =
       GlobalKey<AnimatedButtonState>();
+  final GlobalKey<AnimatedButtonState> _pomodoroButtonKey =
+      GlobalKey<AnimatedButtonState>();
+  final GlobalKey<AnimatedButtonState> _shortBreakButtonKey =
+      GlobalKey<AnimatedButtonState>();
+  final GlobalKey<AnimatedButtonState> _longBreakButtonKey =
+      GlobalKey<AnimatedButtonState>();
 
-  final _pomodoroDurations = [15000, 300000, 900000];
+  final _pomodoroDuration = 1500000;
+  final _shortBreakDuration = 300000;
+  final _longBreakDuration = 900000;
+
+  final _pomodoroDurations = [
+    15000,
+    300000,
+    15000,
+    300000,
+    15000,
+    300000,
+    15000,
+    900000
+  ];
   int duration = 5000;
   int pomodoroStep = 0;
 
   late Isolate timerIsolate;
-
-  final _pomodoroIdx = 0;
-  final _shortBreakIdx = 1;
-  final _longBreakIdx = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -69,13 +84,28 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         Expanded(
                             child: AnimatedButton(
+                                key: _pomodoroButtonKey,
                                 width: 105,
                                 height: 50,
                                 color: Colors.white,
                                 onPressed: () async {},
                                 enabled: true,
                                 shadowDegree: ShadowDegree.light,
-                                onToggle: (toggled) async {},
+                                onToggle: (toggled) {
+                                  if (toggled) {
+                                    stopTimer();
+                                    _shortBreakButtonKey.currentState!
+                                        .untoggleButton();
+                                    _longBreakButtonKey.currentState!
+                                        .untoggleButton();
+                                    duration = _pomodoroDuration;
+                                    pomodoroStep = 0;
+                                    setState(() {
+                                      duration;
+                                      pomodoroStep;
+                                    });
+                                  }
+                                },
                                 child: const Text(
                                   'POMODORO',
                                   style: TextStyle(
@@ -86,13 +116,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ))),
                         Expanded(
                           child: AnimatedButton(
+                              key: _shortBreakButtonKey,
                               width: 105,
                               height: 50,
                               color: Colors.white,
                               onPressed: () async {},
                               enabled: true,
                               shadowDegree: ShadowDegree.light,
-                              onToggle: (toggled) async {},
+                              onToggle: (toggled) {
+                                if (toggled) {
+                                  stopTimer();
+                                  _pomodoroButtonKey.currentState!
+                                      .untoggleButton();
+                                  _longBreakButtonKey.currentState!
+                                      .untoggleButton();
+                                  duration = _shortBreakDuration;
+                                  pomodoroStep = 1;
+                                  setState(() {
+                                    duration;
+                                    pomodoroStep;
+                                  });
+                                }
+                              },
                               child: const Text(
                                 'SHORT BREAK',
                                 style: TextStyle(
@@ -104,13 +149,29 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Expanded(
                           child: AnimatedButton(
+                              key: _longBreakButtonKey,
                               width: 105,
                               height: 50,
                               color: Colors.white,
                               onPressed: () async {},
                               enabled: true,
                               shadowDegree: ShadowDegree.light,
-                              onToggle: (toggled) async {},
+                              onToggle: (toggled) {
+                                if (toggled) {
+                                  stopTimer();
+
+                                  _shortBreakButtonKey.currentState!
+                                      .untoggleButton();
+                                  _pomodoroButtonKey.currentState!
+                                      .untoggleButton();
+                                  duration = _longBreakDuration;
+                                  pomodoroStep = 2;
+                                  setState(() {
+                                    duration;
+                                    pomodoroStep;
+                                  });
+                                }
+                              },
                               child: const Text(
                                 'LONG BREAK',
                                 style: TextStyle(
@@ -139,8 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           await startTimer();
                         } else {
                           timerIsolate.kill();
-                          NotificationService().showNotification(
-                              title: 'Hora de Uma Pausa', body: 'É hora de parar e fazer uma pausa!');
+                          handleNotification();
                         }
                       },
                       child: Text(
@@ -156,6 +216,33 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  void stopTimer() {
+    if (_isButtonToggled) {
+      _mainButtonKey.currentState?.untoggleButton();
+      timerIsolate.kill();
+    }
+    updateButtonState(false);
+  }
+
+  void handleNotification() {
+    switch (pomodoroStep) {
+      case 0:
+        NotificationService().showNotification(
+            title: 'Hora de Foco', body: 'É hora de focar nas suas tarefas!');
+        break;
+      case 1:
+        NotificationService().showNotification(
+            title: 'Hora de Uma Pausa',
+            body: 'É hora de parar e fazer uma pausa!');
+        break;
+      case 2:
+        NotificationService().showNotification(
+            title: 'Hora de Uma Pausa Longa',
+            body: 'É hora de parar e fazer uma pausa longa!');
+        break;
+    }
   }
 
   Future<void> startTimer() async {
@@ -177,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       } else {
         pomodoroStep++;
-        pomodoroStep = pomodoroStep % 3; // round robin
+        pomodoroStep = pomodoroStep % _pomodoroDurations.length; // round robin
         duration = _pomodoroDurations[pomodoroStep];
         _mainButtonKey.currentState?.untoggleButton();
       }
@@ -190,6 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     setState(() {
       buttonText;
+      _isButtonToggled;
     });
   }
 }
