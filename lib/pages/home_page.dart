@@ -35,8 +35,13 @@ enum Step { pomodoro, shortBreak, longBreak }
 Step currentStep = Step.pomodoro;
 
 class _MyHomePageState extends State<MyHomePage> {
+  int pomodoroStepCounter = 0;
+
   bool _isButtonToggled = false;
   String buttonText = "START";
+
+  Color backgroundColor = AppStyles.primaryColor;
+
   final GlobalKey<AnimatedButtonState> _mainButtonKey =
       GlobalKey<AnimatedButtonState>();
   final GlobalKey<AnimatedButtonState> _pomodoroButtonKey =
@@ -46,9 +51,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<AnimatedButtonState> _longBreakButtonKey =
       GlobalKey<AnimatedButtonState>();
 
-  final _pomodoroDuration = 5000;
-  final _shortBreakDuration = 2000;
-  final _longBreakDuration = 10000;
+  int duration = 1500000;
+  final _pomodoroDuration = 1500000;
+  final _shortBreakDuration = 300000;
+  final _longBreakDuration = 900000;
 
   final _timerSteps = [
     Step.pomodoro,
@@ -61,12 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Step.longBreak
   ];
 
-  int duration = 5000;
-  int pomodoroStepCounter = 0;
-
   late Isolate timerIsolate;
-
-  Color backgroundColor = AppStyles.primaryColor;
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onToggle: (toggled) async {
                         updateButtonState(toggled);
                         if (toggled) {
-                          await startTimer();
+                          await handleMainButtonToggle();
                         } else {
                           timerIsolate.kill();
                         }
@@ -243,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
     updateButtonState(false);
   }
 
-  Future<void> startTimer() async {
+  Future<void> handleMainButtonToggle() async {
     log('Initiating Isolate');
 
     final ReceivePort receivePort = ReceivePort();
