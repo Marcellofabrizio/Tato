@@ -29,6 +29,10 @@ String formatDuration(int milliseconds) {
   return '$minutesStr:$secondsStr';
 }
 
+enum Step { pomodoro, shortBreak, longBreak }
+
+Step currentStep = Step.pomodoro;
+
 class _MyHomePageState extends State<MyHomePage> {
   bool _isButtonToggled = false;
   String buttonText = "START";
@@ -41,9 +45,9 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<AnimatedButtonState> _longBreakButtonKey =
       GlobalKey<AnimatedButtonState>();
 
-  final _pomodoroDuration = 1500000;
-  final _shortBreakDuration = 300000;
-  final _longBreakDuration = 900000;
+  final _pomodoroDuration = 5000;
+  final _shortBreakDuration = 2000;
+  final _longBreakDuration = 10000;
 
   final _pomodoroDurations = [
     15000,
@@ -55,8 +59,20 @@ class _MyHomePageState extends State<MyHomePage> {
     15000,
     900000
   ];
+
+  final _timerSteps = [
+    Step.pomodoro,
+    Step.shortBreak,
+    Step.pomodoro,
+    Step.shortBreak,
+    Step.pomodoro,
+    Step.shortBreak,
+    Step.pomodoro,
+    Step.longBreak
+  ];
+
   int duration = 5000;
-  int pomodoroStep = 0;
+  int pomodoroStepCounter = 0;
 
   late Isolate timerIsolate;
 
@@ -90,6 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 color: Colors.white,
                                 onPressed: () async {},
                                 enabled: true,
+                                tapToggleEnabled: false,
+                                initiallyToggled: true,
                                 shadowDegree: ShadowDegree.light,
                                 onToggle: (toggled) {
                                   if (toggled) {
@@ -112,6 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Colors.white,
                               onPressed: () async {},
                               enabled: true,
+                              tapToggleEnabled: false,
                               shadowDegree: ShadowDegree.light,
                               onToggle: (toggled) {
                                 if (toggled) {
@@ -135,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Colors.white,
                               onPressed: () async {},
                               enabled: true,
+                              tapToggleEnabled: false,
                               shadowDegree: ShadowDegree.light,
                               onToggle: (toggled) {
                                 if (toggled) {
@@ -169,7 +189,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           await startTimer();
                         } else {
                           timerIsolate.kill();
-                          handleNotification();
                         }
                       },
                       child: Text(
@@ -189,44 +208,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void handleLongBreakButtonToggle() {
     stopTimer();
-    
-    _shortBreakButtonKey.currentState!
-        .untoggleButton();
-    _pomodoroButtonKey.currentState!
-        .untoggleButton();
+
+    _shortBreakButtonKey.currentState!.untoggleButton();
+    _pomodoroButtonKey.currentState!.untoggleButton();
     duration = _longBreakDuration;
-    pomodoroStep = 2;
+    currentStep = Step.longBreak;
     setState(() {
       duration;
-      pomodoroStep;
     });
   }
 
   void handleShortBreakButtonToggle() {
     stopTimer();
-    _pomodoroButtonKey.currentState!
-        .untoggleButton();
-    _longBreakButtonKey.currentState!
-        .untoggleButton();
+    _pomodoroButtonKey.currentState!.untoggleButton();
+    _longBreakButtonKey.currentState!.untoggleButton();
     duration = _shortBreakDuration;
-    pomodoroStep = 1;
+    currentStep = Step.shortBreak;
     setState(() {
       duration;
-      pomodoroStep;
     });
   }
 
   void handlePomodoroStepToggle() {
     stopTimer();
-    _shortBreakButtonKey.currentState!
-        .untoggleButton();
-    _longBreakButtonKey.currentState!
-        .untoggleButton();
+    _shortBreakButtonKey.currentState!.untoggleButton();
+    _longBreakButtonKey.currentState!.untoggleButton();
     duration = _pomodoroDuration;
-    pomodoroStep = 0;
+    currentStep = Step.pomodoro;
     setState(() {
       duration;
-      pomodoroStep;
     });
   }
 
@@ -236,25 +246,6 @@ class _MyHomePageState extends State<MyHomePage> {
       timerIsolate.kill();
     }
     updateButtonState(false);
-  }
-
-  void handleNotification() {
-    switch (pomodoroStep) {
-      case 0:
-        NotificationService().showNotification(
-            title: 'Hora de Foco', body: 'É hora de focar nas suas tarefas!');
-        break;
-      case 1:
-        NotificationService().showNotification(
-            title: 'Hora de Uma Pausa',
-            body: 'É hora de parar e fazer uma pausa!');
-        break;
-      case 2:
-        NotificationService().showNotification(
-            title: 'Hora de Uma Pausa Longa',
-            body: 'É hora de parar e fazer uma pausa longa!');
-        break;
-    }
   }
 
   Future<void> startTimer() async {
@@ -275,10 +266,28 @@ class _MyHomePageState extends State<MyHomePage> {
           duration = message;
         });
       } else {
-        pomodoroStep++;
-        pomodoroStep = pomodoroStep % _pomodoroDurations.length; // round robin
-        duration = _pomodoroDurations[pomodoroStep];
+        pomodoroStepCounter++;
+        pomodoroStepCounter =
+            pomodoroStepCounter % _timerSteps.length; // round robin
+        currentStep = _timerSteps[pomodoroStepCounter];
+
+        switch (currentStep) {
+          case Step.pomodoro:
+            _pomodoroButtonKey.currentState!.toggleButton();
+            handlePomodoroStepToggle();
+            break;
+          case Step.shortBreak:
+            _shortBreakButtonKey.currentState!.toggleButton();
+            handleShortBreakButtonToggle();
+            break;
+          case Step.longBreak:
+            _longBreakButtonKey.currentState!.toggleButton();
+            handleLongBreakButtonToggle();
+            break;
+        }
+
         _mainButtonKey.currentState?.untoggleButton();
+        handleNotification();
       }
     });
   }
@@ -291,6 +300,25 @@ class _MyHomePageState extends State<MyHomePage> {
       buttonText;
       _isButtonToggled;
     });
+  }
+}
+
+void handleNotification() {
+  switch (currentStep) {
+    case Step.pomodoro:
+      NotificationService().showNotification(
+          title: 'Hora de Foco', body: 'É hora de focar nas suas tarefas!');
+      break;
+    case Step.shortBreak:
+      NotificationService().showNotification(
+          title: 'Hora de Uma Pausa',
+          body: 'É hora de parar e fazer uma pausa!');
+      break;
+    case Step.longBreak:
+      NotificationService().showNotification(
+          title: 'Hora de Uma Pausa Longa',
+          body: 'É hora de parar e fazer uma pausa longa!');
+      break;
   }
 }
 

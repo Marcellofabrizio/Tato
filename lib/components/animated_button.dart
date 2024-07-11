@@ -15,6 +15,8 @@ class AnimatedButton extends StatefulWidget {
   final int duration;
   final BoxShape shape;
   final void Function(bool) onToggle;
+  final bool tapToggleEnabled;
+  final bool initiallyToggled;
 
   const AnimatedButton(
       {super.key,
@@ -27,7 +29,9 @@ class AnimatedButton extends StatefulWidget {
       this.shadowDegree = ShadowDegree.light,
       this.width = 200,
       this.duration = 70,
-      this.shape = BoxShape.rectangle})
+      this.shape = BoxShape.rectangle,
+      this.tapToggleEnabled = true,
+      this.initiallyToggled = false})
       : assert(child != null);
 
   @override
@@ -39,6 +43,19 @@ class AnimatedButtonState extends State<AnimatedButton> {
   static const double _shadowHeight = 4;
   double _position = 4;
   bool toggled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the state based on the initiallyToggled parameter only once
+    toggled = widget.initiallyToggled;
+    _position = widget.initiallyToggled ? 0 : 4;
+
+    setState(() {
+      toggled;
+      _position;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +115,7 @@ class AnimatedButtonState extends State<AnimatedButton> {
   void _pressed() {
     if (toggled == false) {
       toggleButton();
-    } else {
+    } else if (widget.tapToggleEnabled) {
       untoggleButton();
       widget.onToggle.call(toggled);
     }
