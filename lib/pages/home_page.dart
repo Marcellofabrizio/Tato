@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tato/components/animated_button.dart';
+import 'package:tato/config/app_stylers.dart';
 import 'package:tato/services/notification_service.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -49,17 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final _shortBreakDuration = 2000;
   final _longBreakDuration = 10000;
 
-  final _pomodoroDurations = [
-    15000,
-    300000,
-    15000,
-    300000,
-    15000,
-    300000,
-    15000,
-    900000
-  ];
-
   final _timerSteps = [
     Step.pomodoro,
     Step.shortBreak,
@@ -76,10 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late Isolate timerIsolate;
 
+  Color backgroundColor = AppStyles.primaryColor;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 186, 73, 73),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
@@ -114,11 +106,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                     handlePomodoroStepToggle();
                                   }
                                 },
-                                child: const Text(
+                                child: Text(
                                   'POMODORO',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Color.fromARGB(255, 186, 73, 73),
+                                    color: backgroundColor,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ))),
@@ -137,11 +129,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   handleShortBreakButtonToggle();
                                 }
                               },
-                              child: const Text(
+                              child: Text(
                                 'SHORT BREAK',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Color.fromARGB(255, 186, 73, 73),
+                                  color: backgroundColor,
                                   fontWeight: FontWeight.w500,
                                 ),
                               )),
@@ -161,11 +153,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   handleLongBreakButtonToggle();
                                 }
                               },
-                              child: const Text(
+                              child: Text(
                                 'LONG BREAK',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Color.fromARGB(255, 186, 73, 73),
+                                  color: backgroundColor,
                                   fontWeight: FontWeight.w500,
                                 ),
                               )),
@@ -193,9 +185,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       child: Text(
                         buttonText,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
-                          color: Color.fromARGB(255, 186, 73, 73),
+                          color: backgroundColor,
                           fontWeight: FontWeight.w500,
                         ),
                       )),
@@ -212,6 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _shortBreakButtonKey.currentState!.untoggleButton();
     _pomodoroButtonKey.currentState!.untoggleButton();
     duration = _longBreakDuration;
+    backgroundColor = AppStyles.breakColor;
     currentStep = Step.longBreak;
     setState(() {
       duration;
@@ -223,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _pomodoroButtonKey.currentState!.untoggleButton();
     _longBreakButtonKey.currentState!.untoggleButton();
     duration = _shortBreakDuration;
+    backgroundColor = AppStyles.breakColor;
     currentStep = Step.shortBreak;
     setState(() {
       duration;
@@ -234,6 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _shortBreakButtonKey.currentState!.untoggleButton();
     _longBreakButtonKey.currentState!.untoggleButton();
     duration = _pomodoroDuration;
+    backgroundColor = AppStyles.primaryColor;
     currentStep = Step.pomodoro;
     setState(() {
       duration;

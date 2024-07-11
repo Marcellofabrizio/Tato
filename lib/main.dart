@@ -1,16 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
-import 'dart:io';
-import 'dart:isolate';
-import 'dart:ui';
-
-import 'package:logger/logger.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:tato/components/animated_button.dart';
+import 'package:tato/config/app_stylers.dart';
 import 'package:tato/pages/home_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tato/services/notification_service.dart';
 
 Future<void> main() async {
@@ -32,7 +24,9 @@ class _MainAppState extends State<MainApp> {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: GoogleFonts.inter().fontFamily,
+        scaffoldBackgroundColor: AppStyles.primaryColor,
+        primaryColor: Colors.white,
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
