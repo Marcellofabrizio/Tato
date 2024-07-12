@@ -1,5 +1,10 @@
 # tato
 
+Created by
+
+Leonardo Bitencourt, Deivid Castagn e Marcello Fabrizio 
+
+
 A new Flutter project.
 
 ## Getting Started
