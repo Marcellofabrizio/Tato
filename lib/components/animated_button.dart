@@ -18,21 +18,7 @@ class AnimatedButton extends StatefulWidget {
   final bool tapToggleEnabled;
   final bool initiallyToggled;
 
-  const AnimatedButton(
-      {super.key,
-      required this.onToggle,
-      required this.onPressed,
-      required this.child,
-      this.enabled = true,
-      this.color = Colors.blue,
-      this.height = 64,
-      this.shadowDegree = ShadowDegree.light,
-      this.width = 200,
-      this.duration = 70,
-      this.shape = BoxShape.rectangle,
-      this.tapToggleEnabled = true,
-      this.initiallyToggled = false})
-      : assert(child != null);
+  const AnimatedButton({super.key, required this.onToggle, required this.onPressed, required this.child, this.enabled = true, this.color = Colors.blue, this.height = 64, this.shadowDegree = ShadowDegree.light, this.width = 200, this.duration = 70, this.shape = BoxShape.rectangle, this.tapToggleEnabled = true, this.initiallyToggled = false}) : assert(child != null);
 
   @override
   AnimatedButtonState createState() => AnimatedButtonState();
@@ -65,7 +51,7 @@ class AnimatedButtonState extends State<AnimatedButton> {
       onTap: widget.enabled ? _pressed : null,
       onTapCancel: widget.enabled ? _unPressed : null,
       child: SizedBox(
-        width: widget.width,
+        width: 100,
         height: height + _shadowHeight,
         child: Stack(
           children: <Widget>[
@@ -73,11 +59,9 @@ class AnimatedButtonState extends State<AnimatedButton> {
               bottom: 0,
               child: Container(
                 height: height,
-                width: widget.width,
+                width: 100,
                 decoration: BoxDecoration(
-                    color: widget.enabled
-                        ? darken(widget.color, widget.shadowDegree)
-                        : darken(Colors.grey, widget.shadowDegree),
+                    color: widget.enabled ? darken(widget.color, widget.shadowDegree) : darken(Colors.grey, widget.shadowDegree),
                     borderRadius: widget.shape != BoxShape.circle
                         ? const BorderRadius.all(
                             Radius.circular(16),
@@ -92,9 +76,9 @@ class AnimatedButtonState extends State<AnimatedButton> {
               bottom: _position,
               child: Container(
                 height: height,
-                width: widget.width,
+                width: 100,
                 decoration: BoxDecoration(
-                    color: widget.enabled ? widget.color : Colors.grey,
+                    color: widget.enabled ? const Color(0xFFF9F6EE) : Colors.grey,
                     borderRadius: widget.shape != BoxShape.circle
                         ? const BorderRadius.all(
                             Radius.circular(16),

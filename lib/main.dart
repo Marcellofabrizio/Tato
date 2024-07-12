@@ -11,6 +11,8 @@ Future<void> main() async {
   runApp(const MainApp());
 }
 
+final chaveDeNavegacao = GlobalKey<NavigatorState>();
+
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
@@ -23,6 +25,11 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      routes: {
+        '/aviso': (context) => const MyHomePage(
+              title: 'Just Another Pomodoro Timer',
+            ),
+      },
       theme: ThemeData(
         fontFamily: GoogleFonts.inter().fontFamily,
         scaffoldBackgroundColor: AppStyles.primaryColor,

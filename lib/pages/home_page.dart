@@ -35,6 +35,13 @@ enum Step { pomodoro, shortBreak, longBreak }
 Step currentStep = Step.pomodoro;
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
   int pomodoroStepCounter = 0;
 
   bool _isButtonToggled = false;
@@ -42,30 +49,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Color backgroundColor = AppStyles.primaryColor;
 
-  final GlobalKey<AnimatedButtonState> _mainButtonKey =
-      GlobalKey<AnimatedButtonState>();
-  final GlobalKey<AnimatedButtonState> _pomodoroButtonKey =
-      GlobalKey<AnimatedButtonState>();
-  final GlobalKey<AnimatedButtonState> _shortBreakButtonKey =
-      GlobalKey<AnimatedButtonState>();
-  final GlobalKey<AnimatedButtonState> _longBreakButtonKey =
-      GlobalKey<AnimatedButtonState>();
+  final GlobalKey<AnimatedButtonState> _mainButtonKey = GlobalKey<AnimatedButtonState>();
+  final GlobalKey<AnimatedButtonState> _pomodoroButtonKey = GlobalKey<AnimatedButtonState>();
+  final GlobalKey<AnimatedButtonState> _shortBreakButtonKey = GlobalKey<AnimatedButtonState>();
+  final GlobalKey<AnimatedButtonState> _longBreakButtonKey = GlobalKey<AnimatedButtonState>();
 
   int duration = 1500000;
-  final _pomodoroDuration = 1500000;
+  final _pomodoroDuration = 10000; //1500000;
   final _shortBreakDuration = 300000;
   final _longBreakDuration = 900000;
 
-  final _timerSteps = [
-    Step.pomodoro,
-    Step.shortBreak,
-    Step.pomodoro,
-    Step.shortBreak,
-    Step.pomodoro,
-    Step.shortBreak,
-    Step.pomodoro,
-    Step.longBreak
-  ];
+  final _timerSteps = [Step.pomodoro, Step.shortBreak, Step.pomodoro, Step.shortBreak, Step.pomodoro, Step.shortBreak, Step.pomodoro, Step.longBreak];
 
   late Isolate timerIsolate;
 
@@ -74,126 +68,134 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: const Color(0xFFF9F6EE),
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Container(
-                margin: const EdgeInsets.all(15.0),
-                padding: const EdgeInsets.all(40.0),
-                // decoration:
-                //     BoxDecoration(border: Border.all(color: Colors.blueAccent)),
-                color: const Color.fromARGB(50, 255, 255, 255),
-                child: Column(children: <Widget>[
-                  Center(
-                    child: Row(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.only(top: 40, bottom: 40),
+                  // decoration:
+                  //     BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+                  color: const Color.fromARGB(50, 255, 255, 255),
+                  child: Column(children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                            child: AnimatedButton(
-                                key: _pomodoroButtonKey,
-                                width: 105,
-                                height: 50,
-                                color: Colors.white,
-                                onPressed: () async {},
-                                enabled: true,
-                                tapToggleEnabled: false,
-                                initiallyToggled: true,
-                                shadowDegree: ShadowDegree.light,
-                                onToggle: (toggled) {
-                                  if (toggled) {
-                                    handlePomodoroStepToggle();
-                                  }
-                                },
-                                child: Text(
-                                  'POMODORO',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: backgroundColor,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ))),
-                        Expanded(
+                        IntrinsicWidth(
                           child: AnimatedButton(
-                              key: _shortBreakButtonKey,
-                              width: 105,
+                              key: _pomodoroButtonKey,
+                              // width: 105,
                               height: 50,
                               color: Colors.white,
                               onPressed: () async {},
                               enabled: true,
                               tapToggleEnabled: false,
+                              initiallyToggled: true,
                               shadowDegree: ShadowDegree.light,
                               onToggle: (toggled) {
                                 if (toggled) {
-                                  handleShortBreakButtonToggle();
+                                  handlePomodoroStepToggle();
                                 }
                               },
                               child: Text(
-                                'SHORT BREAK',
+                                'POMODORO',
                                 style: TextStyle(
-                                  fontSize: 13,
+                                  fontSize: 10,
                                   color: backgroundColor,
                                   fontWeight: FontWeight.w500,
                                 ),
                               )),
                         ),
-                        Expanded(
-                          child: AnimatedButton(
-                              key: _longBreakButtonKey,
-                              width: 105,
-                              height: 50,
-                              color: Colors.white,
-                              onPressed: () async {},
-                              enabled: true,
-                              tapToggleEnabled: false,
-                              shadowDegree: ShadowDegree.light,
-                              onToggle: (toggled) {
-                                if (toggled) {
-                                  handleLongBreakButtonToggle();
-                                }
-                              },
-                              child: Text(
-                                'LONG BREAK',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: backgroundColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              )),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        AnimatedButton(
+                          key: _shortBreakButtonKey,
+                          // width: 105,
+                          height: 50,
+                          color: Colors.white,
+                          onPressed: () async {},
+                          enabled: true,
+                          tapToggleEnabled: false,
+                          shadowDegree: ShadowDegree.light,
+                          onToggle: (toggled) {
+                            if (toggled) {
+                              handleShortBreakButtonToggle();
+                            }
+                          },
+                          child: Text(
+                            'SHORT BREAK',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: backgroundColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        AnimatedButton(
+                          key: _longBreakButtonKey,
+                          // width: 105,
+                          height: 50,
+                          color: Colors.white,
+                          onPressed: () async {},
+                          enabled: true,
+                          tapToggleEnabled: false,
+                          shadowDegree: ShadowDegree.light,
+                          onToggle: (toggled) {
+                            if (toggled) {
+                              handleLongBreakButtonToggle();
+                            }
+                          },
+                          child: Text(
+                            'LONG BREAK',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: backgroundColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  Text(
-                    formatDuration(duration),
-                    style: const TextStyle(fontSize: 70.0),
-                  ),
-                  AnimatedButton(
-                      key: _mainButtonKey,
-                      color: Colors.white,
-                      onPressed: () async {},
-                      enabled: true,
-                      shadowDegree: ShadowDegree.light,
-                      onToggle: (toggled) async {
-                        updateButtonState(toggled);
-                        if (toggled) {
-                          await handleMainButtonToggle();
-                        } else {
-                          timerIsolate.kill();
-                        }
-                      },
-                      child: Text(
-                        buttonText,
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: backgroundColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      )),
-                ]))
-          ],
+                    Text(
+                      formatDuration(duration),
+                      style: const TextStyle(fontSize: 70.0),
+                    ),
+                    AnimatedButton(
+                        key: _mainButtonKey,
+                        color: Colors.white,
+                        onPressed: () async {},
+                        enabled: true,
+                        shadowDegree: ShadowDegree.light,
+                        onToggle: (toggled) async {
+                          updateButtonState(toggled);
+                          if (toggled) {
+                            await handleMainButtonToggle();
+                          } else {
+                            timerIsolate.kill();
+                          }
+                        },
+                        child: Text(
+                          buttonText,
+                          style: TextStyle(
+                            fontSize: 22,
+                            color: backgroundColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        )),
+                  ]))
+            ],
+          ),
         ),
       ),
     );
@@ -248,8 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
     log('Initiating Isolate');
 
     final ReceivePort receivePort = ReceivePort();
-    timerIsolate =
-        await Isolate.spawn(isolateMain, [receivePort.sendPort, duration]);
+    timerIsolate = await Isolate.spawn(isolateMain, [receivePort.sendPort, duration]);
 
     final sendPort = await receivePort.first as SendPort;
     final answerPort = ReceivePort();
@@ -263,8 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       } else {
         pomodoroStepCounter++;
-        pomodoroStepCounter =
-            pomodoroStepCounter % _timerSteps.length; // round robin
+        pomodoroStepCounter = pomodoroStepCounter % _timerSteps.length; // round robin
         currentStep = _timerSteps[pomodoroStepCounter];
 
         switch (currentStep) {
@@ -302,18 +302,13 @@ class _MyHomePageState extends State<MyHomePage> {
 void handleNotification() {
   switch (currentStep) {
     case Step.pomodoro:
-      NotificationService().showNotification(
-          title: 'Hora de Foco', body: 'É hora de focar nas suas tarefas!');
+      NotificationService().showNotification(title: 'Hora de Foco', body: 'É hora de focar nas suas tarefas!');
       break;
     case Step.shortBreak:
-      NotificationService().showNotification(
-          title: 'Hora de Uma Pausa',
-          body: 'É hora de parar e fazer uma pausa!');
+      NotificationService().showNotification(title: 'Hora de Uma Pausa', body: 'É hora de parar e fazer uma pausa!');
       break;
     case Step.longBreak:
-      NotificationService().showNotification(
-          title: 'Hora de Uma Pausa Longa',
-          body: 'É hora de parar e fazer uma pausa longa!');
+      NotificationService().showNotification(title: 'Hora de Uma Pausa Longa', body: 'É hora de parar e fazer uma pausa longa!');
       break;
   }
 }
